@@ -1,5 +1,24 @@
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+// Bogie class (Custom Object)
+class Bogie {
+    String name;
+    int capacity;
+
+    // Constructor
+    public Bogie(String name, int capacity) {
+        this.name = name;
+        this.capacity = capacity;
+    }
+
+    // Display method
+    @Override
+    public String toString() {
+        return name + " -> Capacity: " + capacity;
+    }
+}
 
 public class Train_Consist_Management_App {
 
@@ -8,19 +27,22 @@ public class Train_Consist_Management_App {
         // Welcome message
         System.out.println("=== Train Consist Management App ===");
 
-        // Create HashSet for bogie IDs (ensures uniqueness)
-        Set<String> bogieIds = new HashSet<>();
+        // Create list of bogies
+        List<Bogie> bogies = new ArrayList<>();
 
-        // Add bogie IDs (including duplicates intentionally)
-        bogieIds.add("BG101");
-        bogieIds.add("BG102");
-        bogieIds.add("BG103");
-        bogieIds.add("BG101"); // duplicate
-        bogieIds.add("BG102"); // duplicate
+        // Add bogies
+        bogies.add(new Bogie("Sleeper", 72));
+        bogies.add(new Bogie("AC Chair", 60));
+        bogies.add(new Bogie("First Class", 24));
 
-        // Display unique bogie IDs
-        System.out.println("\nUnique Bogie IDs:");
-        System.out.println(bogieIds);
+        // Sort bogies by capacity (ascending)
+        bogies.sort(Comparator.comparingInt(b -> b.capacity));
+
+        // Display sorted bogies
+        System.out.println("\nBogies sorted by capacity:");
+        for (Bogie b : bogies) {
+            System.out.println(b);
+        }
 
         // Program continues...
     }
