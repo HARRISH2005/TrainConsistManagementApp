@@ -1,4 +1,5 @@
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Train_Consist_Management_App {
 
@@ -7,29 +8,20 @@ public class Train_Consist_Management_App {
         // Welcome message
         System.out.println("=== Train Consist Management App ===");
 
-        // Create LinkedList for train consist
-        LinkedList<String> trainConsist = new LinkedList<>();
+        // Create LinkedHashSet for train formation
+        Set<String> trainFormation = new LinkedHashSet<>();
 
-        // Add bogies in order
-        trainConsist.add("Engine");
-        trainConsist.add("Sleeper");
-        trainConsist.add("AC");
-        trainConsist.add("Cargo");
-        trainConsist.add("Guard");
+        // Add bogies
+        trainFormation.add("Engine");
+        trainFormation.add("Sleeper");
+        trainFormation.add("Cargo");
+        trainFormation.add("Guard");
 
-        // Insert Pantry Car at position 2 (index starts from 0)
-        trainConsist.add(2, "Pantry Car");
+        // Attempt to add duplicate
+        trainFormation.add("Sleeper"); // duplicate (ignored)
 
-        // Display after insertion
-        System.out.println("\nTrain consist after adding bogies:");
-        System.out.println(trainConsist);
-
-        // Remove first and last bogie
-        trainConsist.removeFirst();
-        trainConsist.removeLast();
-
-        // Display final consist
-        System.out.println("\nFinal train consist after removals:");
-        System.out.println(trainConsist);
+        // Display final formation
+        System.out.println("\nFinal Train Formation:");
+        System.out.println(trainFormation);
     }
 }
