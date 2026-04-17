@@ -1,7 +1,7 @@
 import java.util.*;
 import java.util.stream.Collectors;
 
-// Base Bogie class
+// Bogie class
 class Bogie {
     private String type;
     private int capacity;
@@ -28,26 +28,17 @@ class Bogie {
 // Main Application
 public class TrainConsistManagementApp {
 
-    // Method to group bogies
+    // UC9: Grouping
     public static Map<String, List<Bogie>> groupBogiesByType(List<Bogie> bogies) {
         return bogies.stream()
                 .collect(Collectors.groupingBy(Bogie::getType));
     }
 
-    // Method to display grouped bogies
-    public static void displayGroupedBogies(Map<String, List<Bogie>> groupedBogies) {
-        if (groupedBogies.isEmpty()) {
-            System.out.println("No bogies available to display.");
-            return;
-        }
-
-        System.out.println("\nGrouped Bogies by Type:");
-        for (Map.Entry<String, List<Bogie>> entry : groupedBogies.entrySet()) {
-            System.out.println("\nType: " + entry.getKey());
-            for (Bogie b : entry.getValue()) {
-                System.out.println(b);
-            }
-        }
+    // UC10: Total seats using reduce()
+    public static int calculateTotalSeats(List<Bogie> bogies) {
+        return bogies.stream()
+                .map(Bogie::getCapacity)     // extract capacity
+                .reduce(0, Integer::sum);   // sum all
     }
 
     public static void main(String[] args) {
@@ -61,51 +52,58 @@ public class TrainConsistManagementApp {
             System.out.println("\n===== Train Consist Management =====");
             System.out.println("1. Add Bogie");
             System.out.println("2. View All Bogies");
-            System.out.println("3. Group Bogies by Type");
-            System.out.println("4. Exit");
+            System.out.println("3. Group Bogies (UC9)");
+            System.out.println("4. Total Seats (UC10)");
+            System.out.println("5. Exit");
             System.out.print("Enter choice: ");
 
             choice = sc.nextInt();
-            sc.nextLine(); // clear buffer
+            sc.nextLine();
 
             switch (choice) {
 
                 case 1:
-                    System.out.print("Enter Bogie Type (Sleeper/AC Chair/First Class): ");
+                    System.out.print("Enter Bogie Type: ");
                     String type = sc.nextLine();
 
                     System.out.print("Enter Capacity: ");
                     int capacity = sc.nextInt();
 
                     bogies.add(new Bogie(type, capacity));
-                    System.out.println("Bogie added successfully!");
+                    System.out.println("Bogie added!");
                     break;
 
                 case 2:
                     if (bogies.isEmpty()) {
-                        System.out.println("No bogies added yet.");
+                        System.out.println("No bogies available.");
                     } else {
-                        System.out.println("\nAll Bogies:");
-                        for (Bogie b : bogies) {
-                            System.out.println(b);
-                        }
+                        bogies.forEach(System.out::println);
                     }
                     break;
 
                 case 3:
                     Map<String, List<Bogie>> grouped = groupBogiesByType(bogies);
-                    displayGroupedBogies(grouped);
+                    System.out.println("\nGrouped Bogies:");
+                    grouped.forEach((k, v) -> {
+                        System.out.println("\nType: " + k);
+                        v.forEach(System.out::println);
+                    });
                     break;
 
                 case 4:
-                    System.out.println("Exiting program...");
+                    int total = calculateTotalSeats(bogies);
+                    System.out.println("Total Seating Capacity: " + total);
+                    break;
+
+                case 5:
+                    System.out.println("Exiting...");
                     break;
 
                 default:
-                    System.out.println("Invalid choice! Try again.");
+                    System.out.println("Invalid choice!");
             }
 
-        } while (choice != 4);
+        } while (choice != 5);
 
         sc.close();
     }
