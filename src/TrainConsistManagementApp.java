@@ -1,36 +1,56 @@
 import java.util.*;
 
-// ================= Custom Exception =================
-class InvalidCapacityException extends Exception {
-    public InvalidCapacityException(String message) {
+// ================= Custom Runtime Exception =================
+class CargoSafetyException extends RuntimeException {
+    public CargoSafetyException(String message) {
         super(message);
     }
 }
 
-// ================= Passenger Bogie =================
-class PassengerBogie {
+// ================= Goods Bogie Class =================
+class GoodsBogie {
     private String type;
-    private int capacity;
+    private String cargo;
 
-    public PassengerBogie(String type, int capacity) throws InvalidCapacityException {
-        if (capacity <= 0) {
-            throw new InvalidCapacityException("Capacity must be greater than zero");
-        }
+    public GoodsBogie(String type) {
         this.type = type;
-        this.capacity = capacity;
+        this.cargo = "None";
     }
 
     public String getType() {
         return type;
     }
 
-    public int getCapacity() {
-        return capacity;
+    public String getCargo() {
+        return cargo;
+    }
+
+    // UC15: Safe Cargo Assignment with try-catch-finally
+    public void assignCargo(String cargo) {
+        try {
+            // Business rule
+            if (type.equalsIgnoreCase("Rectangular") &&
+                    cargo.equalsIgnoreCase("Petroleum")) {
+
+                throw new CargoSafetyException(
+                        "Unsafe Assignment: Petroleum cannot be assigned to Rectangular bogie"
+                );
+            }
+
+            this.cargo = cargo;
+            System.out.println("Cargo assigned successfully! ✅");
+
+        } catch (CargoSafetyException e) {
+            System.out.println("Error: " + e.getMessage() + " ❌");
+
+        } finally {
+            System.out.println("Operation completed (logged in finally block).\n");
+        }
     }
 
     @Override
     public String toString() {
-        return "PassengerBogie{type='" + type + "', capacity=" + capacity + "}";
+        return "GoodsBogie{type='" + type + "', cargo='" + cargo + "'}";
     }
 }
 
@@ -40,15 +60,16 @@ public class TrainConsistManagementApp {
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
-        List<PassengerBogie> bogies = new ArrayList<>();
+        List<GoodsBogie> bogies = new ArrayList<>();
 
         int choice;
 
         do {
-            System.out.println("\n===== Train Passenger Management (UC14) =====");
-            System.out.println("1. Add Passenger Bogie");
-            System.out.println("2. View All Bogies");
-            System.out.println("3. Exit");
+            System.out.println("\n===== Train Consist Management (UC15) =====");
+            System.out.println("1. Add Goods Bogie");
+            System.out.println("2. Assign Cargo");
+            System.out.println("3. View Bogies");
+            System.out.println("4. Exit");
             System.out.print("Enter choice: ");
 
             choice = sc.nextInt();
@@ -57,33 +78,46 @@ public class TrainConsistManagementApp {
             switch (choice) {
 
                 case 1:
-                    try {
-                        System.out.print("Enter Bogie Type (Sleeper/AC Chair/First Class): ");
-                        String type = sc.nextLine();
+                    System.out.print("Enter Bogie Type (Rectangular/Cylindrical): ");
+                    String type = sc.nextLine();
 
-                        System.out.print("Enter Capacity: ");
-                        int capacity = sc.nextInt();
-
-                        PassengerBogie bogie = new PassengerBogie(type, capacity);
-                        bogies.add(bogie);
-
-                        System.out.println("Bogie added successfully! ✅");
-
-                    } catch (InvalidCapacityException e) {
-                        System.out.println("Error: " + e.getMessage() + " ❌");
-                    }
+                    bogies.add(new GoodsBogie(type));
+                    System.out.println("Bogie added successfully! ✅");
                     break;
 
                 case 2:
                     if (bogies.isEmpty()) {
                         System.out.println("No bogies available.");
-                    } else {
-                        System.out.println("\nPassenger Bogies:");
-                        bogies.forEach(System.out::println);
+                        break;
                     }
+
+                    System.out.print("Enter Bogie Index (0 to " + (bogies.size() - 1) + "): ");
+                    int index = sc.nextInt();
+                    sc.nextLine();
+
+                    if (index < 0 || index >= bogies.size()) {
+                        System.out.println("Invalid index!");
+                        break;
+                    }
+
+                    System.out.print("Enter Cargo: ");
+                    String cargo = sc.nextLine();
+
+                    bogies.get(index).assignCargo(cargo);
                     break;
 
                 case 3:
+                    if (bogies.isEmpty()) {
+                        System.out.println("No bogies available.");
+                    } else {
+                        System.out.println("\nGoods Bogies:");
+                        for (int i = 0; i < bogies.size(); i++) {
+                            System.out.println(i + " -> " + bogies.get(i));
+                        }
+                    }
+                    break;
+
+                case 4:
                     System.out.println("Exiting program...");
                     break;
 
@@ -91,7 +125,7 @@ public class TrainConsistManagementApp {
                     System.out.println("Invalid choice!");
             }
 
-        } while (choice != 3);
+        } while (choice != 4);
 
         sc.close();
     }
