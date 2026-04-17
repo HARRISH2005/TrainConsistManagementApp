@@ -1,12 +1,21 @@
 import java.util.*;
-import java.util.stream.*;
 
-// Bogie class
-class Bogie {
+// ================= Custom Exception =================
+class InvalidCapacityException extends Exception {
+    public InvalidCapacityException(String message) {
+        super(message);
+    }
+}
+
+// ================= Passenger Bogie =================
+class PassengerBogie {
     private String type;
     private int capacity;
 
-    public Bogie(String type, int capacity) {
+    public PassengerBogie(String type, int capacity) throws InvalidCapacityException {
+        if (capacity <= 0) {
+            throw new InvalidCapacityException("Capacity must be greater than zero");
+        }
         this.type = type;
         this.capacity = capacity;
     }
@@ -21,69 +30,69 @@ class Bogie {
 
     @Override
     public String toString() {
-        return "Bogie{type='" + type + "', capacity=" + capacity + "}";
+        return "PassengerBogie{type='" + type + "', capacity=" + capacity + "}";
     }
 }
 
-// Main Class
+// ================= Main Application =================
 public class TrainConsistManagementApp {
-
-    // Loop-based filtering
-    public static List<Bogie> filterUsingLoop(List<Bogie> bogies) {
-        List<Bogie> result = new ArrayList<>();
-        for (Bogie b : bogies) {
-            if (b.getCapacity() > 60) {
-                result.add(b);
-            }
-        }
-        return result;
-    }
-
-    // Stream-based filtering
-    public static List<Bogie> filterUsingStream(List<Bogie> bogies) {
-        return bogies.stream()
-                .filter(b -> b.getCapacity() > 60)
-                .collect(Collectors.toList());
-    }
 
     public static void main(String[] args) {
 
-        // Create dataset (large for benchmarking)
-        List<Bogie> bogies = new ArrayList<>();
+        Scanner sc = new Scanner(System.in);
+        List<PassengerBogie> bogies = new ArrayList<>();
 
-        for (int i = 0; i < 100000; i++) {
-            bogies.add(new Bogie("Sleeper", (i % 100) + 1));
-        }
+        int choice;
 
-        // ================= LOOP =================
-        long startLoop = System.nanoTime();
+        do {
+            System.out.println("\n===== Train Passenger Management (UC14) =====");
+            System.out.println("1. Add Passenger Bogie");
+            System.out.println("2. View All Bogies");
+            System.out.println("3. Exit");
+            System.out.print("Enter choice: ");
 
-        List<Bogie> loopResult = filterUsingLoop(bogies);
+            choice = sc.nextInt();
+            sc.nextLine();
 
-        long endLoop = System.nanoTime();
-        long loopTime = endLoop - startLoop;
+            switch (choice) {
 
-        // ================= STREAM =================
-        long startStream = System.nanoTime();
+                case 1:
+                    try {
+                        System.out.print("Enter Bogie Type (Sleeper/AC Chair/First Class): ");
+                        String type = sc.nextLine();
 
-        List<Bogie> streamResult = filterUsingStream(bogies);
+                        System.out.print("Enter Capacity: ");
+                        int capacity = sc.nextInt();
 
-        long endStream = System.nanoTime();
-        long streamTime = endStream - startStream;
+                        PassengerBogie bogie = new PassengerBogie(type, capacity);
+                        bogies.add(bogie);
 
-        // ================= OUTPUT =================
-        System.out.println("Loop Result Size: " + loopResult.size());
-        System.out.println("Stream Result Size: " + streamResult.size());
+                        System.out.println("Bogie added successfully! ✅");
 
-        System.out.println("\nExecution Time:");
-        System.out.println("Loop Time   : " + loopTime + " ns");
-        System.out.println("Stream Time : " + streamTime + " ns");
+                    } catch (InvalidCapacityException e) {
+                        System.out.println("Error: " + e.getMessage() + " ❌");
+                    }
+                    break;
 
-        // Consistency check
-        if (loopResult.size() == streamResult.size()) {
-            System.out.println("\nResults are CONSISTENT ✅");
-        } else {
-            System.out.println("\nResults are NOT CONSISTENT ❌");
-        }
+                case 2:
+                    if (bogies.isEmpty()) {
+                        System.out.println("No bogies available.");
+                    } else {
+                        System.out.println("\nPassenger Bogies:");
+                        bogies.forEach(System.out::println);
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("Exiting program...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 3);
+
+        sc.close();
     }
 }
