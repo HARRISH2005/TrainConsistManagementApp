@@ -1,102 +1,89 @@
 import java.util.*;
+import java.util.stream.*;
 
-// Goods Bogie class
-class GoodsBogie {
+// Bogie class
+class Bogie {
     private String type;
-    private String cargo;
+    private int capacity;
 
-    public GoodsBogie(String type, String cargo) {
+    public Bogie(String type, int capacity) {
         this.type = type;
-        this.cargo = cargo;
+        this.capacity = capacity;
     }
 
     public String getType() {
         return type;
     }
 
-    public String getCargo() {
-        return cargo;
+    public int getCapacity() {
+        return capacity;
     }
 
     @Override
     public String toString() {
-        return "GoodsBogie{type='" + type + "', cargo='" + cargo + "'}";
+        return "Bogie{type='" + type + "', capacity=" + capacity + "}";
     }
 }
 
-// Main Application
+// Main Class
 public class TrainConsistManagementApp {
 
-    // UC12: Safety Validation
-    public static boolean isTrainSafe(List<GoodsBogie> bogies) {
+    // Loop-based filtering
+    public static List<Bogie> filterUsingLoop(List<Bogie> bogies) {
+        List<Bogie> result = new ArrayList<>();
+        for (Bogie b : bogies) {
+            if (b.getCapacity() > 60) {
+                result.add(b);
+            }
+        }
+        return result;
+    }
+
+    // Stream-based filtering
+    public static List<Bogie> filterUsingStream(List<Bogie> bogies) {
         return bogies.stream()
-                .allMatch(b ->
-                        !b.getType().equalsIgnoreCase("Cylindrical") ||
-                                b.getCargo().equalsIgnoreCase("Petroleum")
-                );
+                .filter(b -> b.getCapacity() > 60)
+                .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {
 
-        Scanner sc = new Scanner(System.in);
-        List<GoodsBogie> bogies = new ArrayList<>();
+        // Create dataset (large for benchmarking)
+        List<Bogie> bogies = new ArrayList<>();
 
-        int choice;
+        for (int i = 0; i < 100000; i++) {
+            bogies.add(new Bogie("Sleeper", (i % 100) + 1));
+        }
 
-        do {
-            System.out.println("\n===== Train Safety Management (UC12) =====");
-            System.out.println("1. Add Goods Bogie");
-            System.out.println("2. View Bogies");
-            System.out.println("3. Check Safety Compliance");
-            System.out.println("4. Exit");
-            System.out.print("Enter choice: ");
+        // ================= LOOP =================
+        long startLoop = System.nanoTime();
 
-            choice = sc.nextInt();
-            sc.nextLine();
+        List<Bogie> loopResult = filterUsingLoop(bogies);
 
-            switch (choice) {
+        long endLoop = System.nanoTime();
+        long loopTime = endLoop - startLoop;
 
-                case 1:
-                    System.out.print("Enter Bogie Type (Cylindrical/Open/Box): ");
-                    String type = sc.nextLine();
+        // ================= STREAM =================
+        long startStream = System.nanoTime();
 
-                    System.out.print("Enter Cargo: ");
-                    String cargo = sc.nextLine();
+        List<Bogie> streamResult = filterUsingStream(bogies);
 
-                    bogies.add(new GoodsBogie(type, cargo));
-                    System.out.println("Bogie added successfully!");
-                    break;
+        long endStream = System.nanoTime();
+        long streamTime = endStream - startStream;
 
-                case 2:
-                    if (bogies.isEmpty()) {
-                        System.out.println("No bogies available.");
-                    } else {
-                        System.out.println("\nList of Goods Bogies:");
-                        bogies.forEach(System.out::println);
-                    }
-                    break;
+        // ================= OUTPUT =================
+        System.out.println("Loop Result Size: " + loopResult.size());
+        System.out.println("Stream Result Size: " + streamResult.size());
 
-                case 3:
-                    boolean isSafe = isTrainSafe(bogies);
+        System.out.println("\nExecution Time:");
+        System.out.println("Loop Time   : " + loopTime + " ns");
+        System.out.println("Stream Time : " + streamTime + " ns");
 
-                    System.out.println("\nSafety Status:");
-                    if (isSafe) {
-                        System.out.println("Train is SAFETY COMPLIANT ✅");
-                    } else {
-                        System.out.println("Train is NOT SAFE ❌");
-                    }
-                    break;
-
-                case 4:
-                    System.out.println("Exiting program...");
-                    break;
-
-                default:
-                    System.out.println("Invalid choice!");
-            }
-
-        } while (choice != 4);
-
-        sc.close();
+        // Consistency check
+        if (loopResult.size() == streamResult.size()) {
+            System.out.println("\nResults are CONSISTENT ✅");
+        } else {
+            System.out.println("\nResults are NOT CONSISTENT ❌");
+        }
     }
 }
